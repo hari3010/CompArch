@@ -7,4 +7,5 @@ FPMULT R1, R1,#0
 FPADD R1,R1,#26.7
 FPMULT R3,R0,R1
 HALT
-0 -- no memory accesses
+1 -- no memory accesses
+<45><7655>

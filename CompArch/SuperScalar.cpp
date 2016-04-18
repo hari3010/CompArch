@@ -3,55 +3,36 @@
 
 using namespace std;
 
+void SuperScalar::Execute()
+{
+	//Todo
+}
 //parse the line and add it to instruction queue
 void SuperScalar::AddInstruction(string strLine)
 {
 	vector<string> vInst;
 	string tempStr;
-	size_t locateIndex;
-	size_t CurrentIndex;
-
-	//!< Push Instruction eg: FPMULT.
-	locateIndex = 
-		strLine.find(" ");
-	if (string::npos != locateIndex)
+	
+	size_t i;
+	size_t CurrentIndex = 0;
+	
+	for (i = 0; i < strLine.length(); i++)
 	{
-		// string before first space is instruction
-		vInst.push_back(strLine.substr(0, locateIndex));
+		//iterate through all letters if it is space, comma or tab 
+		//mark it as a demiliter. copy the sub strings from the current index to delimitor
+		if (strLine[i] == ' ' || strLine[i] == ',' || strLine[i] == '\t')
+		{
+			if (i != CurrentIndex)
+			{
+				vInst.push_back(strLine.substr(CurrentIndex, i - CurrentIndex));
+			}	
+			CurrentIndex = i + 1;
+		}
 	}
-	else
+	if (CurrentIndex != strLine.length())
 	{
-		//Halt may have space or end line
-		vInst.push_back(strLine);
+		vInst.push_back(strLine.substr(CurrentIndex));
 	}
-
-	CurrentIndex = locateIndex + 1;
-	//!< Add first operand eg: R0
-	locateIndex = strLine.find(",", CurrentIndex);
-	if (string::npos != locateIndex)
-	{
-		//string from first space and first comma
-		vInst.push_back(strLine.substr(CurrentIndex, locateIndex- CurrentIndex - 1));
-	}
-
-	CurrentIndex = locateIndex + 1;
-	//!< Add first operand eg: R0
-	locateIndex = strLine.find(",", CurrentIndex);
-	if (string::npos != locateIndex)
-	{
-		//string from first space and first comma
-		vInst.push_back(strLine.substr(CurrentIndex, locateIndex - CurrentIndex - 1));
-	}
-
-	CurrentIndex = locateIndex;
-	//!< Add first operand eg: R0
-	locateIndex = strLine.find(",", CurrentIndex);
-	if (string::npos != locateIndex)
-	{
-		//string from first space and first comma
-		vInst.push_back(strLine.substr(CurrentIndex + 1, locateIndex - CurrentIndex - 1));
-	}
-
 
 	InstQueue.push_back(vInst);
 }

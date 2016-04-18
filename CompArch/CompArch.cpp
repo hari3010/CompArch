@@ -14,6 +14,9 @@ int main()
 	if (0 != scInst.ReadInputFile("assembly.txt"))
 		cout << "read failure";
 
+	if ()
+	{
+	}
 
     return 0;
 }

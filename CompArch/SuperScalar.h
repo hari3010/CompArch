@@ -13,5 +13,6 @@ class SuperScalar
 public:
 	SuperScalar():Memory(1024){}
 	int ReadInputFile(string path);
+	void Execute();
 	void AddInstruction(string line);
 };
