@@ -14,9 +14,7 @@ int main()
 	if (0 != scInst.ReadInputFile("assembly.txt"))
 		cout << "read failure";
 
-	if ()
-	{
-	}
+	scInst.Simulate();
 
     return 0;
 }
@@ -100,6 +98,8 @@ int SuperScalar::ReadInputFile(string path)
 			}
 		}
 		inputFile.close();
+
+		m_iPCMax = linesOfCode;
 	}
 	else
 	{

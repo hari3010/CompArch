@@ -3,10 +3,43 @@
 
 using namespace std;
 
-void SuperScalar::Execute()
+void SuperScalar::issue()
 {
-	//Todo
+	//For the first time, nothing will be issued
+	if (m_iCurrentIssue != NO_ISSUE)
+	{
+		//Todo
+		//Register rename
+		//Assign job to a specific execution queue
+	}
+
+	//First time comes here, issue first job
+	if (m_iCurrentIssue == NO_ISSUE)
+	{
+		m_iCurrentIssue = m_iProgramCounter;
+
+		if (m_iProgramCounter < m_iPCMax)
+		{
+			m_iProgramCounter++;
+		}
+	}
 }
+
+//Simulate the set of instruction and find the total number of cycles
+void SuperScalar::Simulate()
+{
+	int iCycles = 0;
+	m_bExeComplete = false;
+	while (!m_bExeComplete)
+	{
+		issue();
+
+		iCycles++;
+	}
+	cout << "Total number of cycles" << iCycles << endl;
+
+}
+
 //parse the line and add it to instruction queue
 void SuperScalar::AddInstruction(string strLine)
 {
@@ -35,4 +68,9 @@ void SuperScalar::AddInstruction(string strLine)
 	}
 
 	InstQueue.push_back(vInst);
+}
+
+void SuperScalar::issue()
+{
+	throw std::logic_error("The method or operation is not implemented.");
 }
