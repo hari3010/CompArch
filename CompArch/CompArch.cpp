@@ -75,12 +75,13 @@ int SuperScalar::ReadInputFile(string path)
 					bReadLinesOfCode = false;
 				}
 				else if (bReadCode)
-				{
-					
-					if (++currentLineOfcode > linesOfCode)
-						bReadCode = false;
+				{					
+					AddInstruction(strLine);
+					if (currentLineOfcode < linesOfCode-1)
+						currentLineOfcode++;
 					else
-						AddInstruction(strLine);
+						bReadCode = false;
+					
 				}
 				else if (bReadLinesOfMemory)
 				{
@@ -92,8 +93,8 @@ int SuperScalar::ReadInputFile(string path)
 				{
 					if (++currentLineOfMemory > linesOfMemory)
 						bReadMemory = false;
-					//else
-						//Todo - yes
+					else
+						AddMemory(strLine);
 				}
 			}
 		}
