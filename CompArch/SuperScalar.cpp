@@ -434,6 +434,11 @@ int SuperScalar::Execute()
 					eRegStatus = STATUS_FREE;
 					itROB->src1 = Register[itROB->Inst.op2].value;
 					itROB->bsrc1Avail = true;
+
+					if (itROB->src1 == -1 || itROB->src1 == 1 || itROB->src1 == 0)
+						itROB->remainingCycles = 2;
+					else if (itROB->src1 > 0 && !((int)itROB->src1 & ((int)itROB->src1 - 1)))
+						itROB->remainingCycles = 3;
 				}
 				
 				//Check if thrid operand is register, if it is, then check it is free
@@ -464,6 +469,12 @@ int SuperScalar::Execute()
 				{
 					itROB->hazard = false;
 					Register[itROB->Inst.op1].eStatus = STATUS_BUSY;
+
+
+					if (itROB->src1 == -1 || itROB->src1 == 1 || itROB->src1 == 0)
+						itROB->remainingCycles = 2;
+					else if (itROB->src1 > 0 && !((int)itROB->src1 & ((int)itROB->src1 - 1)))
+						itROB->remainingCycles = 3;
 				}
 
 				//If value taken from CDB itROB->remainingCycles--;
@@ -536,7 +547,7 @@ int SuperScalar::Execute()
 				if (itROB->remainingCycles == 0)
 				{
 					Register[(int)itROB->Inst.op1].value = Memory[(int)itROB->src2];
-					Register[(int)itROB->Inst.op2].eStatus = STATUS_FREE;
+					Register[(int)itROB->Inst.op1].eStatus = STATUS_FREE;
 					m_iLoadStoreFU--; 
 					bRemoveCurrentValue = true;
 					PRINT("Execution Finished for :: " << itROB->PCindex << "at Cycle" << m_iCycles-1);
@@ -736,6 +747,13 @@ void SuperScalar::Simulate()
 		Execute();
 
 		m_iCycles++;
+
+		if (m_iFPAdderFU == 0 && m_iIntFU == 0 && 
+			m_iLoadStoreFU == 0 && m_iFPMultiplierFU == 0
+			&& m_iProgramCounter >= m_iPCMax)
+		{
+			m_bExeComplete = true;
+		}
 	}
 	cout << "Total number of cycles" << m_iCycles << endl;
 
@@ -905,6 +923,33 @@ void SuperScalar::AddInstruction(string strLine)
 		}
 		case E_MOV:
 		case E_LOAD:
+		{
+			//Operand2
+			stringstream ss2(vInst[1].substr(1));
+			ss2 >> l_Inst.op1;
+
+			//Operand3
+			stringstream ss;
+			if (vInst[2][0] == '#')
+			{
+				ss.str(vInst[2].substr(1));
+				l_Inst.select = NUMBER;
+				PRINT(ss.str());
+			}
+			else if (vInst[2][0] == 'R')
+			{
+				ss.str(vInst[2].substr(1));
+				l_Inst.select = REGISTER;
+			}
+			else
+			{
+				ss.str(vInst[2]);
+				l_Inst.select = MEMORY;
+			}
+			ss >> l_Inst.op3;
+			break;
+			break;
+		}
 		case E_STR:
 		case E_BGT:
 		case E_BLT:
