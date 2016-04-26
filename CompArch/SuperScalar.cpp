@@ -11,14 +11,14 @@ void SuperScalar::IssueToFU()
 	{
 	case E_LOAD:
 	case E_MOV:
-	{	stROB l_rob(InstQueue[m_iCurrentIssue], 2, true, m_iCurrentIssue);
+	{	stROB l_rob(InstQueue[m_iCurrentIssue], CYCLES_LOAD+1, true, m_iCurrentIssue);
 		listROB.push_back(l_rob);
 		m_iLoadStoreFU++;
 		break;
 	}
 	case E_STR:
 	{
-		stROB l_rob(InstQueue[m_iCurrentIssue], 4, true, m_iCurrentIssue);
+		stROB l_rob(InstQueue[m_iCurrentIssue], CYCLES_STR+1, true, m_iCurrentIssue);
 		listROB.push_back(l_rob);
 		m_iLoadStoreFU++;
 		break;
@@ -26,21 +26,21 @@ void SuperScalar::IssueToFU()
 	case E_FPADD:
 	case E_FPSUB:
 	{
-		stROB l_rob(InstQueue[m_iCurrentIssue], 4, true, m_iCurrentIssue);
+		stROB l_rob(InstQueue[m_iCurrentIssue], CYCLES_FPADD+1, true, m_iCurrentIssue);
 		listROB.push_back(l_rob);
 		m_iFPAdderFU++;
 		break;
 	}
 	case E_FPMULT:
 	{
-		stROB l_rob(InstQueue[m_iCurrentIssue], 6, true, m_iCurrentIssue);
+		stROB l_rob(InstQueue[m_iCurrentIssue], CYCLES_FPMUL + 1, true, m_iCurrentIssue);
 		listROB.push_back(l_rob);
 		m_iFPMultiplierFU++;
 		break;
 	}
 	case E_FPDIV:
 	{
-		stROB l_rob(InstQueue[m_iCurrentIssue], 7, true, m_iCurrentIssue);
+		stROB l_rob(InstQueue[m_iCurrentIssue], CYCLES_FPDIV + 1, true, m_iCurrentIssue);
 		listROB.push_back(l_rob);
 		m_iFPMultiplierFU++;
 		break;
@@ -48,7 +48,7 @@ void SuperScalar::IssueToFU()
 	case E_ADD:
 	case E_SUB:
 	{
-		stROB l_rob(InstQueue[m_iCurrentIssue], 2, true, m_iCurrentIssue);
+		stROB l_rob(InstQueue[m_iCurrentIssue], CYCLES_ADD + 1, true, m_iCurrentIssue);
 		listROB.push_back(l_rob);
 		m_iIntFU++;
 		break;
@@ -159,8 +159,16 @@ int SuperScalar::Execute()
 				itROB->remainingCycles--;
 				if (itROB->remainingCycles == 0)
 				{
-					Register[itROB->Inst.op1].value = itROB->src1 / itROB->src2;
-					Register[itROB->Inst.op2].eStatus = STATUS_FREE;
+					if (itROB->src2 != 0)
+					{
+						Register[itROB->Inst.op1].value = itROB->src1 / itROB->src2;
+					}
+					else
+					{
+						Register[itROB->Inst.op1].value = itROB->src1;
+					}
+
+					Register[itROB->Inst.op1].eStatus = STATUS_FREE;
 					m_iFPMultiplierFU--;
 					bRemoveCurrentValue = true;
 					PRINT("Execution Finished for :: " << itROB->PCindex << " at Cycle" << m_iCycles-1);
@@ -223,7 +231,7 @@ int SuperScalar::Execute()
 				if (itROB->remainingCycles == 0)
 				{
 					Register[itROB->Inst.op1].value = itROB->src1 + itROB->src2;
-					Register[itROB->Inst.op2].eStatus = STATUS_FREE;
+					Register[itROB->Inst.op1].eStatus = STATUS_FREE;
 					m_iIntFU--;
 					bRemoveCurrentValue = true;
 					PRINT("Execution Finished for :: " << itROB->PCindex << "at Cycle" << m_iCycles-1);
@@ -287,7 +295,7 @@ int SuperScalar::Execute()
 				if (itROB->remainingCycles == 0)
 				{
 					Register[itROB->Inst.op1].value = itROB->src1 - itROB->src2;
-					Register[itROB->Inst.op2].eStatus = STATUS_FREE;
+					Register[itROB->Inst.op1].eStatus = STATUS_FREE;
 					m_iIntFU--;
 					bRemoveCurrentValue = true;
 					PRINT("Execution Finished for :: " << itROB->PCindex << "at Cycle" << m_iCycles-1);
@@ -350,7 +358,7 @@ int SuperScalar::Execute()
 				if (itROB->remainingCycles == 0)
 				{
 					Register[itROB->Inst.op1].value = itROB->src1 + itROB->src2;
-					Register[itROB->Inst.op2].eStatus = STATUS_FREE;
+					Register[itROB->Inst.op1].eStatus = STATUS_FREE;
 					m_iFPAdderFU--;
 					bRemoveCurrentValue = true;
 					PRINT("Execution Finished for :: " << itROB->PCindex << "at Cycle" << m_iCycles-1);
@@ -413,7 +421,7 @@ int SuperScalar::Execute()
 				if (itROB->remainingCycles == 0)
 				{
 					Register[itROB->Inst.op1].value = itROB->src1 - itROB->src2;
-					Register[itROB->Inst.op2].eStatus = STATUS_FREE;
+					Register[itROB->Inst.op1].eStatus = STATUS_FREE;
 					m_iFPAdderFU--;
 					bRemoveCurrentValue = true;
 					PRINT("Execution Finished for :: " << itROB->PCindex << "at Cycle" << m_iCycles-1);
@@ -434,11 +442,6 @@ int SuperScalar::Execute()
 					eRegStatus = STATUS_FREE;
 					itROB->src1 = Register[itROB->Inst.op2].value;
 					itROB->bsrc1Avail = true;
-
-					if (itROB->src1 == -1 || itROB->src1 == 1 || itROB->src1 == 0)
-						itROB->remainingCycles = 2;
-					else if (itROB->src1 > 0 && !((int)itROB->src1 & ((int)itROB->src1 - 1)))
-						itROB->remainingCycles = 3;
 				}
 				
 				//Check if thrid operand is register, if it is, then check it is free
@@ -470,9 +473,11 @@ int SuperScalar::Execute()
 					itROB->hazard = false;
 					Register[itROB->Inst.op1].eStatus = STATUS_BUSY;
 
-
-					if (itROB->src1 == -1 || itROB->src1 == 1 || itROB->src1 == 0)
+					if (itROB->src1 == -1 || itROB->src1 == 1 || itROB->src1 == 0
+						|| itROB->src1 == -1 || itROB->src1 == 1 || itROB->src1 == 0)
 						itROB->remainingCycles = 2;
+					else if (itROB->src1 > 0 && !((int)itROB->src1 & ((int)itROB->src1 - 1)))
+						itROB->remainingCycles = 3;
 					else if (itROB->src1 > 0 && !((int)itROB->src1 & ((int)itROB->src1 - 1)))
 						itROB->remainingCycles = 3;
 				}
@@ -487,7 +492,7 @@ int SuperScalar::Execute()
 				if (itROB->remainingCycles == 0)
 				{
 					Register[itROB->Inst.op1].value = itROB->src1 * itROB->src2;
-					Register[itROB->Inst.op2].eStatus = STATUS_FREE;
+					Register[itROB->Inst.op1].eStatus = STATUS_FREE;
 					m_iFPMultiplierFU--;
 					bRemoveCurrentValue = true;
 					PRINT("Execution Finished for :: " << itROB->PCindex << " at Cycle" << m_iCycles-1);
@@ -606,7 +611,7 @@ int SuperScalar::Execute()
 				if (itROB->remainingCycles == 0)
 				{
 					Register[itROB->Inst.op1].value = itROB->src2;
-					Register[itROB->Inst.op2].eStatus = STATUS_FREE;
+					Register[itROB->Inst.op1].eStatus = STATUS_FREE;
 					m_iLoadStoreFU--;
 					bRemoveCurrentValue = true;
 					PRINT("Execution Finished for :: " << itROB->PCindex << "at Cycle" << m_iCycles-1);
@@ -746,13 +751,15 @@ void SuperScalar::Simulate()
 
 		Execute();
 
-		m_iCycles++;
-
 		if (m_iFPAdderFU == 0 && m_iIntFU == 0 && 
 			m_iLoadStoreFU == 0 && m_iFPMultiplierFU == 0
 			&& m_iProgramCounter >= m_iPCMax)
 		{
 			m_bExeComplete = true;
+		}
+		else
+		{
+			m_iCycles++;
 		}
 	}
 	cout << "Total number of cycles" << m_iCycles << endl;
