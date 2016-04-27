@@ -63,7 +63,8 @@ void SuperScalar::IssueToFU()
 	{
 		std::map<int, E_PREDICTION>::iterator it;
 		it = mapBranchPredict.find(m_iCurrentIssue);
-		
+
+
 		//!< Branch prediction
 		//if this branch already seen
 		if (it != mapBranchPredict.end())
@@ -74,7 +75,7 @@ void SuperScalar::IssueToFU()
 				case PREDICT_WEAKLY_TAKEN:
 				{
 					//Assuming op3 is always a NUMBER value
-					m_iProgramCounter += (int)InstQueue[m_iCurrentIssue].op3;
+					m_iProgramCounter += InstQueue[m_iCurrentIssue].op3;
 					break;
 				}
 				case PREDICT_STRONGLY_NOT_TAKEN:
@@ -87,14 +88,15 @@ void SuperScalar::IssueToFU()
 		}
 		else
 		{
-			mapBranchPredict[m_iCurrentIssue] = PREDICT_STRONGLY_TAKEN;
+			mapBranchPredict[m_iCurrentIssue] == PREDICT_STRONGLY_TAKEN;
 			//Assuming op3 is always a NUMBER value
-			m_iProgramCounter += (int)InstQueue[m_iCurrentIssue].op3;
+			m_iProgramCounter += InstQueue[m_iCurrentIssue].op3;
 		}
 
 		//Insert into Queue
 		stROB l_rob(InstQueue[m_iCurrentIssue], CYCLES_BRANCH, true, m_iCurrentIssue);
 		listROB.push_back(l_rob);
+		m_iIntFU++;
 		break;
 	}
 	default:
@@ -214,8 +216,8 @@ int SuperScalar::Execute()
 					Register[itROB->Inst.op1].eStatus = STATUS_FREE;
 					m_iFPMultiplierFU--;
 					bRemoveCurrentValue = true;
-					PRINT("Execution Finished for instruction:  " << itROB->PCindex << "   at Cycle-" << m_iCycles-1);
-					PRINT("Write Finished for instruction:  " << itROB->PCindex << "   at Cycle-" << m_iCycles);
+					PRINT("Execution Finished for :: " << itROB->PCindex << "   at Cycle-" << m_iCycles-1);
+					PRINT("Write Finished for :: " << itROB->PCindex << "   at Cycle-" << m_iCycles);
 					itROB = listROB.erase(itROB);
 				}
 			}
@@ -277,8 +279,8 @@ int SuperScalar::Execute()
 					Register[itROB->Inst.op1].eStatus = STATUS_FREE;
 					m_iIntFU--;
 					bRemoveCurrentValue = true;
-					PRINT("Execution Finished for instruction:  " << itROB->PCindex << "  at Cycle-" << m_iCycles-1);
-					PRINT("Write Finished for instruction:  " << itROB->PCindex << "  at Cycle-" << m_iCycles );
+					PRINT("Execution Finished for :: " << itROB->PCindex << "  at Cycle-" << m_iCycles-1);
+					PRINT("Write Finished for :: " << itROB->PCindex << "  at Cycle-" << m_iCycles );
 					itROB = listROB.erase(itROB);
 				}
 			}
@@ -341,8 +343,8 @@ int SuperScalar::Execute()
 					Register[itROB->Inst.op1].eStatus = STATUS_FREE;
 					m_iIntFU--;
 					bRemoveCurrentValue = true;
-					PRINT("Execution Finished for instruction:  " << itROB->PCindex << "  at Cycle-" << m_iCycles-1);
-					PRINT("Write Finished for instruction:  " << itROB->PCindex << "  at Cycle-" << m_iCycles );
+					PRINT("Execution Finished for :: " << itROB->PCindex << "  at Cycle-" << m_iCycles-1);
+					PRINT("Write Finished for :: " << itROB->PCindex << "  at Cycle-" << m_iCycles );
 					itROB = listROB.erase(itROB);
 				}
 			}
@@ -404,8 +406,8 @@ int SuperScalar::Execute()
 					Register[itROB->Inst.op1].eStatus = STATUS_FREE;
 					m_iFPAdderFU--;
 					bRemoveCurrentValue = true;
-					PRINT("Execution Finished for instruction:  " << itROB->PCindex << "  at Cycle-" << m_iCycles-1);
-					PRINT("Write Finished for instruction:  " << itROB->PCindex << "  at Cycle-" << m_iCycles );
+					PRINT("Execution Finished for :: " << itROB->PCindex << "  at Cycle-" << m_iCycles-1);
+					PRINT("Write Finished for :: " << itROB->PCindex << "  at Cycle-" << m_iCycles );
 					itROB = listROB.erase(itROB);
 				}
 			}
@@ -467,8 +469,8 @@ int SuperScalar::Execute()
 					Register[itROB->Inst.op1].eStatus = STATUS_FREE;
 					m_iFPAdderFU--;
 					bRemoveCurrentValue = true;
-					PRINT("Execution Finished for instruction:  " << itROB->PCindex << "  at Cycle-" << m_iCycles-1);
-					PRINT("Write Finished for instruction:  " << itROB->PCindex << "  at Cycle-" << m_iCycles);
+					PRINT("Execution Finished for :: " << itROB->PCindex << "  at Cycle-" << m_iCycles-1);
+					PRINT("Write Finished for :: " << itROB->PCindex << "  at Cycle-" << m_iCycles);
 					itROB = listROB.erase(itROB);
 				}
 			}
@@ -538,8 +540,8 @@ int SuperScalar::Execute()
 					Register[itROB->Inst.op1].eStatus = STATUS_FREE;
 					m_iFPMultiplierFU--;
 					bRemoveCurrentValue = true;
-					PRINT("Execution Finished for instruction:  " << itROB->PCindex << "   at Cycle-" << m_iCycles-1);
-					PRINT("Write Finished for instruction:  " << itROB->PCindex << "   at Cycle-" << m_iCycles );
+					PRINT("Execution Finished for :: " << itROB->PCindex << "   at Cycle-" << m_iCycles-1);
+					PRINT("Write Finished for :: " << itROB->PCindex << "   at Cycle-" << m_iCycles );
 					itROB = listROB.erase(itROB);
 
 				}
@@ -594,12 +596,12 @@ int SuperScalar::Execute()
 				itROB->remainingCycles--;
 				if (itROB->remainingCycles == 0)
 				{
-					Register[(int)itROB->Inst.op1].value = itROB->src2;
+					Register[(int)itROB->Inst.op1].value = Memory[(int)itROB->src2];
 					Register[(int)itROB->Inst.op1].eStatus = STATUS_FREE;
 					m_iLoadStoreFU--; 
 					bRemoveCurrentValue = true;
-					PRINT("Execution Finished for instruction:  " << itROB->PCindex << "  at Cycle-" << m_iCycles-1);
-					PRINT("Write Finished for instruction:  " << itROB->PCindex << "  at Cycle-" << m_iCycles );
+					PRINT("Execution Finished for :: " << itROB->PCindex << "  at Cycle-" << m_iCycles-1);
+					PRINT("Write Finished for :: " << itROB->PCindex << "  at Cycle-" << m_iCycles );
 					itROB = listROB.erase(itROB);
 				}
 			}
@@ -657,8 +659,8 @@ int SuperScalar::Execute()
 					Register[itROB->Inst.op1].eStatus = STATUS_FREE;
 					m_iLoadStoreFU--;
 					bRemoveCurrentValue = true;
-					PRINT("Execution Finished for instruction:  " << itROB->PCindex << "  at Cycle-" << m_iCycles-1);
-					PRINT("Write Finished for instruction:  " << itROB->PCindex << "  at Cycle-" << m_iCycles);
+					PRINT("Execution Finished for :: " << itROB->PCindex << "  at Cycle-" << m_iCycles-1);
+					PRINT("Write Finished for :: " << itROB->PCindex << "  at Cycle-" << m_iCycles);
 					itROB = listROB.erase(itROB);
 				}
 			}
@@ -717,8 +719,8 @@ int SuperScalar::Execute()
 					Register[(int)itROB->Inst.op2].eStatus = STATUS_FREE;
 					m_iLoadStoreFU--;
 					bRemoveCurrentValue = true;
-					PRINT("Execution Finished for instruction:  " << itROB->PCindex << "  at Cycle-" << m_iCycles-1);
-					PRINT("Write Finished for instruction:  " << itROB->PCindex << "  at Cycle-" << m_iCycles);
+					PRINT("Execution Finished for :: " << itROB->PCindex << "  at Cycle-" << m_iCycles-1);
+					PRINT("Write Finished for :: " << itROB->PCindex << "  at Cycle-" << m_iCycles);
 					itROB = listROB.erase(itROB);
 				}
 			}
@@ -773,7 +775,7 @@ int SuperScalar::Execute()
 				itROB->remainingCycles--;
 				if (itROB->remainingCycles == 0)
 				{
-					if (itROB->src1 != 0)
+					if (itROB->src1 == 0)
 					{
 						switch (mapBranchPredict[itROB->PCindex])
 						{
@@ -788,10 +790,8 @@ int SuperScalar::Execute()
 							case PREDICT_STRONGLY_NOT_TAKEN:
 							{
 								m_iProgramCounter = itROB->PCindex + (int)itROB->src2 + 1;
-								PRINT("Execution Finished for instruction:  " << itROB->PCindex << "  at Cycle-" << m_iCycles - 1);
-								PRINT("Write Finished for instruction:  " << itROB->PCindex << "  at Cycle-" << m_iCycles);
-
-								mapBranchPredict[itROB->PCindex] = PREDICT_WEAKLY_NOT_TAKEN;
+								PRINT("Execution Finished for :: " << itROB->PCindex << "  at Cycle-" << m_iCycles - 1);
+								PRINT("Write Finished for :: " << itROB->PCindex << "  at Cycle-" << m_iCycles);
 
 								//Delete all the instructions queued later
 								itROB = listROB.erase(itROB);
@@ -800,17 +800,15 @@ int SuperScalar::Execute()
 									itROB = listROB.erase(itROB);
 								}
 								//Also clear the current issued
-								
+								mapBranchPredict[itROB->PCindex] = PREDICT_WEAKLY_NOT_TAKEN;
 								m_iCurrentIssue = NO_ISSUE;
 								break;
 							}
 							case PREDICT_WEAKLY_NOT_TAKEN:
 							{
 								m_iProgramCounter = itROB->PCindex + (int)itROB->src2 + 1;
-								PRINT("Execution Finished for instruction:  " << itROB->PCindex << "  at Cycle-" << m_iCycles - 1);
-								PRINT("Write Finished for instruction:  " << itROB->PCindex << "  at Cycle-" << m_iCycles);
-
-								mapBranchPredict[itROB->PCindex] = PREDICT_WEAKLY_TAKEN;
+								PRINT("Execution Finished for :: " << itROB->PCindex << "  at Cycle-" << m_iCycles - 1);
+								PRINT("Write Finished for :: " << itROB->PCindex << "  at Cycle-" << m_iCycles);
 
 								//Delete all the instructions queued later
 								itROB = listROB.erase(itROB);
@@ -818,7 +816,7 @@ int SuperScalar::Execute()
 								{
 									itROB = listROB.erase(itROB);
 								}
-								
+								mapBranchPredict[itROB->PCindex] = PREDICT_WEAKLY_TAKEN;
 								//Also clear the current issued
 								m_iCurrentIssue = NO_ISSUE;
 								break;
@@ -841,10 +839,8 @@ int SuperScalar::Execute()
 							case PREDICT_STRONGLY_TAKEN:
 							{
 								m_iProgramCounter = itROB->PCindex + 1;
-								PRINT("Execution Finished for instruction:  " << itROB->PCindex << "  at Cycle-" << m_iCycles - 1);
-								PRINT("Write Finished for instruction:  " << itROB->PCindex << "  at Cycle-" << m_iCycles);
-
-								mapBranchPredict[itROB->PCindex] = PREDICT_WEAKLY_TAKEN;
+								PRINT("Execution Finished for :: " << itROB->PCindex << "  at Cycle-" << m_iCycles - 1);
+								PRINT("Write Finished for :: " << itROB->PCindex << "  at Cycle-" << m_iCycles);
 
 								//Delete all the instructions queued later
 								itROB = listROB.erase(itROB);
@@ -853,17 +849,15 @@ int SuperScalar::Execute()
 									itROB = listROB.erase(itROB);
 								}
 								//Also clear the current issued
-								
+								mapBranchPredict[itROB->PCindex] = PREDICT_WEAKLY_TAKEN;
 								m_iCurrentIssue = NO_ISSUE;
 								break;
 							}
 							case PREDICT_WEAKLY_TAKEN:
 							{
 								m_iProgramCounter = itROB->PCindex + 1;
-								PRINT("Execution Finished for instruction:  " << itROB->PCindex << "  at Cycle-" << m_iCycles - 1);
-								PRINT("Write Finished for instruction:  " << itROB->PCindex << "  at Cycle-" << m_iCycles);
-
-								mapBranchPredict[itROB->PCindex] = PREDICT_WEAKLY_NOT_TAKEN;
+								PRINT("Execution Finished for :: " << itROB->PCindex << "  at Cycle-" << m_iCycles - 1);
+								PRINT("Write Finished for :: " << itROB->PCindex << "  at Cycle-" << m_iCycles);
 
 								//Delete all the instructions queued later
 								itROB = listROB.erase(itROB);
@@ -871,7 +865,7 @@ int SuperScalar::Execute()
 								{
 									itROB = listROB.erase(itROB);
 								}
-								
+								mapBranchPredict[itROB->PCindex] = PREDICT_WEAKLY_NOT_TAKEN;
 								//Also clear the current issued
 								m_iCurrentIssue = NO_ISSUE;
 								break;
@@ -1069,10 +1063,6 @@ void SuperScalar::AddInstruction(string strLine)
 	else if (vInst[0] == "HALT")
 	{
 		l_Inst.eMne = E_HALT;
-	}
-	else
-	{
-		return;
 	}
 
 	size_t isize = vInst.size();

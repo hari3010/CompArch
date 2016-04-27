@@ -71,8 +71,8 @@ int SuperScalar::ReadInputFile(string path)
 				if (bReadLinesOfCode)
 				{
 					stringstream ss(strLine);
-					ss >> linesOfCode;
-					bReadLinesOfCode = false;
+					if(ss >> linesOfCode)
+						bReadLinesOfCode = false;
 				}
 				else if (bReadCode)
 				{					

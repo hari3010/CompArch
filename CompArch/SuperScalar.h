@@ -49,9 +49,11 @@ class SuperScalar
 		{
 			bsrc2Avail = false;
 			bsrc1Avail = false;
-		}
+		} 
 	};
 	list<stROB> listROB;
+
+	map<int, E_PREDICTION> mapBranchPredict;
 
 	struct Reg
 	{
