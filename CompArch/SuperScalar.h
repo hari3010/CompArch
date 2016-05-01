@@ -15,6 +15,7 @@ using namespace std;
 #define SUCCESS 0
 #define PRINT(x) std::cout << x << std::endl;
 
+
 class SuperScalar
 {
 	//Instruction Queue
@@ -70,10 +71,12 @@ class SuperScalar
 	int m_iIntFU;
 	int m_iFPAdderFU;
 	int m_iFPMultiplierFU;
+	int m_iMisPrediction;
+	E_PREDICTION m_predictType;
 
 public:
 	SuperScalar() :Memory(1024), m_iProgramCounter(0), m_iCurrentIssue(NO_ISSUE),
-		m_iPCMax(0), Register(16) {}
+		m_iPCMax(0), Register(16), m_iMisPrediction(0) {}
 	int ReadInputFile(string path);
 	void Simulate();
 	void AddInstruction(string line);

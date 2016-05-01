@@ -12,7 +12,10 @@ int main()
 	SuperScalar scInst;
 
 	if (0 != scInst.ReadInputFile("assembly.txt"))
+	{
 		cout << "read failure";
+		cout << "Add the instruction file as the name 'assembly.txt' in executable folder or project folder";
+	}
 
 	scInst.Simulate();
 
